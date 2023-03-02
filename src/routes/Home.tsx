@@ -1,3 +1,24 @@
+import { Grid } from "@chakra-ui/react";
+import Room from "../components/Room";
+
 export default function Home() {
-  return <h1>im Home</h1>;
+  return (
+    <Grid
+      mt={10}
+      px={{ base: 10, lg: 40 }}
+      columnGap={4}
+      rowGap={8}
+      templateColumns={{
+        sm: "1fr",
+        md: "repeat(2, 1fr)",
+        lg: "repeat(3, 1fr)",
+        xl: "repeat(4, 1fr)",
+        "2xl": "repeat(5, 1fr)",
+      }}
+    >
+      {[...Array(20)].map((_, i) => (
+        <Room key={i} />
+      ))}
+    </Grid>
+  );
 }
