@@ -10,6 +10,11 @@ import {
   useColorModeValue,
   LightMode,
   Avatar,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  useToast,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import LoginModal from "./LoginModal";
@@ -31,6 +36,23 @@ export default function Header() {
   const { toggleColorMode } = useColorMode();
   const logoColor = useColorModeValue("red.500", "red.300");
   const Icon = useColorModeValue(FaMoon, FaSun);
+  const toast = useToast();
+  const onLogout = async () => {
+    const toastId = toast({
+      title: "Logging out...",
+      description: "Please wait...",
+      status: "loading",
+      position: "bottom-right",
+    });
+    setTimeout(() => {
+      toast.update(toastId, {
+        title: "Logged out",
+        description: "You have been logged out",
+        status: "success",
+      });
+    }, 3000);
+  };
+
   return (
     <Stack
       justifyContent={"space-between"}
@@ -63,7 +85,14 @@ export default function Header() {
               </LightMode>
             </>
           ) : (
-            <Avatar name={user?.name} src={user?.avatar} size={"md"} />
+            <Menu>
+              <MenuButton>
+                <Avatar name={user?.name} src={user?.avatar} size={"md"} />
+              </MenuButton>
+              <MenuList>
+                <MenuItem onClick={onLogout}>Log out</MenuItem>
+              </MenuList>
+            </Menu>
           )
         ) : null}
       </HStack>
