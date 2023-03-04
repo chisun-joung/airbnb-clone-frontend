@@ -17,6 +17,8 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { logOut } from "../api";
 import LoginModal from "./LoginModal";
 import SignUpModal from "./SignUpModal";
 import useUser from "../lib/useUser";
@@ -37,6 +39,7 @@ export default function Header() {
   const logoColor = useColorModeValue("red.500", "red.300");
   const Icon = useColorModeValue(FaMoon, FaSun);
   const toast = useToast();
+  const queryClient = useQueryClient();
   const onLogout = async () => {
     const toastId = toast({
       title: "Logging out...",
@@ -44,13 +47,13 @@ export default function Header() {
       status: "loading",
       position: "bottom-right",
     });
-    setTimeout(() => {
-      toast.update(toastId, {
-        title: "Logged out",
-        description: "You have been logged out",
-        status: "success",
-      });
-    }, 3000);
+    await logOut();
+    queryClient.refetchQueries(["me"]);
+    toast.update(toastId, {
+      title: "Logged out",
+      description: "You have been logged out",
+      status: "success",
+    });
   };
 
   return (
