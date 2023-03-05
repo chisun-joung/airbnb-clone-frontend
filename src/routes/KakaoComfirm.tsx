@@ -12,7 +12,19 @@ export default function KakaoConfirm() {
   const confirmLogin = async () => {
     const params = new URLSearchParams(search);
     const code = params.get("code");
-    console.log(code);
+    if (code) {
+      const status = await kakaoLogIn(code);
+      if (status === 200) {
+        toast({
+          title: "Logged in",
+          description: "You have been logged in",
+          status: "success",
+          position: "bottom-right",
+        });
+        queryClient.refetchQueries(["me"]);
+        navigate("/");
+      }
+    }
   };
   useEffect(() => {
     confirmLogin();
