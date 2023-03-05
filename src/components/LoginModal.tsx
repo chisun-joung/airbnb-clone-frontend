@@ -16,8 +16,8 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { FaUserNinja, FaLock } from "react-icons/fa";
-import SocialLogin from "./SocialLogin";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import SocialLogin from "./SocialLogin";
 import { usernameLogIn } from "../api";
 
 interface LoginModalProps {
