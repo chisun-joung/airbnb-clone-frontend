@@ -14,41 +14,47 @@ import {
   Select,
   Textarea,
   VStack,
+  Text,
+  useToast,
 } from "@chakra-ui/react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { FaBed, FaMoneyCheck, FaToilet } from "react-icons/fa";
-import { getAmenities, getCategories } from "../api";
+import { useNavigate } from "react-router-dom";
+import {
+  getAmenities,
+  getCategories,
+  IUploadRoomVariables,
+  uploadRoom,
+} from "../api";
 import useHostOnlyPage from "../components/HostOnlyPage";
 import ProtectedPage from "../components/ProtectedPage";
-import { IAmenity, ICategory } from "../types";
-
-interface IForm {
-  name: string;
-  country: string;
-  city: string;
-  price: number;
-  rooms: number;
-  toilets: number;
-  description: string;
-  address: string;
-  pet_friendly: boolean;
-  kind: string;
-  amenities: number[];
-  category: number;
-}
+import { IAmenity, ICategory, IRoomDetail } from "../types";
 
 export default function UploadRoom() {
-  const { register, handleSubmit } = useForm<IForm>();
-  const { data: amenities, isLoading: isAmenitiesLoading } = useQuery<
-    IAmenity[]
-  >(["amenities"], getAmenities);
-  const { data: categories, isLoading: isCategoriesLoading } = useQuery<
-    ICategory[]
-  >(["categories"], getCategories);
+  const { register, handleSubmit, watch } = useForm<IUploadRoomVariables>();
+  const toast = useToast();
+  const navigate = useNavigate();
+  const mutation = useMutation(uploadRoom, {
+    onSuccess: (data: IRoomDetail) => {
+      toast({
+        title: "Room uploaded",
+        description: "Your room has been uploaded",
+        status: "success",
+        position: "bottom-right",
+      });
+      navigate(`/rooms/${data.id}`);
+    },
+  });
+  const { data: amenities } = useQuery<IAmenity[]>(["amenities"], getAmenities);
+  const { data: categories } = useQuery<ICategory[]>(
+    ["categories"],
+    getCategories
+  );
   useHostOnlyPage();
-  const onSubmit = (data: IForm) => {
-    console.log(data);
+  console.log(watch());
+  const onSubmit = (data: IUploadRoomVariables) => {
+    mutation.mutate(data);
   };
   return (
     <ProtectedPage>
@@ -150,9 +156,9 @@ export default function UploadRoom() {
                 {...register("kind", { required: true })}
                 placeholder="choose a kind"
               >
-                <option value="entire_place">Entire Place</option>
-                <option value="private_room">Private Room</option>
-                <option value="shared_room">Shared Room</option>
+                <option value="ENTIRE_PLACE">Entire Place</option>
+                <option value="PRIVATE_ROOM">Private Room</option>
+                <option value="SHARED_ROOM">Shared Room</option>
               </Select>
               <FormHelperText>Choose the type of your room.</FormHelperText>
             </FormControl>
@@ -188,7 +194,16 @@ export default function UploadRoom() {
                 ))}
               </Grid>
             </FormControl>
-            <Button colorScheme={"red"} size="lg" w="100%">
+            {mutation.isError ? (
+              <Text color="red.500">Something went wrong</Text>
+            ) : null}
+            <Button
+              type="submit"
+              isLoading={mutation.isLoading}
+              colorScheme={"red"}
+              size="lg"
+              w="100%"
+            >
               Upload Room
             </Button>
           </VStack>
