@@ -16,13 +16,30 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
 import { FaBed, FaMoneyCheck, FaToilet } from "react-icons/fa";
 import { getAmenities, getCategories } from "../api";
 import useHostOnlyPage from "../components/HostOnlyPage";
 import ProtectedPage from "../components/ProtectedPage";
 import { IAmenity, ICategory } from "../types";
 
+interface IForm {
+  name: string;
+  country: string;
+  city: string;
+  price: number;
+  rooms: number;
+  toilets: number;
+  description: string;
+  address: string;
+  pet_friendly: boolean;
+  kind: string;
+  amenities: number[];
+  category: number;
+}
+
 export default function UploadRoom() {
+  const { register, handleSubmit } = useForm<IForm>();
   const { data: amenities, isLoading: isAmenitiesLoading } = useQuery<
     IAmenity[]
   >(["amenities"], getAmenities);
@@ -30,6 +47,9 @@ export default function UploadRoom() {
     ICategory[]
   >(["categories"], getCategories);
   useHostOnlyPage();
+  const onSubmit = (data: IForm) => {
+    console.log(data);
+  };
   return (
     <ProtectedPage>
       <Box
@@ -42,55 +62,94 @@ export default function UploadRoom() {
       >
         <Container>
           <Heading textAlign={"center"}>Upload Room</Heading>
-          <VStack spacing={10} as={"form"} mt={10}>
+          <VStack
+            spacing={10}
+            as={"form"}
+            onSubmit={handleSubmit(onSubmit)}
+            mt={10}
+          >
             <FormControl>
               <FormLabel>Room Name</FormLabel>
-              <Input required type={"text"} />
+              <Input
+                {...register("name", { required: true })}
+                required
+                type={"text"}
+              />
               <FormHelperText>Write the name of your room.</FormHelperText>
             </FormControl>
             <FormControl>
               <FormLabel>Country</FormLabel>
-              <Input required type={"text"} />
+              <Input
+                {...register("country", { required: true })}
+                required
+                type={"text"}
+              />
             </FormControl>
             <FormControl>
               <FormLabel>City</FormLabel>
-              <Input required type={"text"} />
+              <Input
+                {...register("city", { required: true })}
+                required
+                type={"text"}
+              />
             </FormControl>
             <FormControl>
               <FormLabel>Address</FormLabel>
-              <Input required type={"text"} />
+              <Input
+                {...register("address", { required: true })}
+                required
+                type={"text"}
+              />
             </FormControl>
             <FormControl>
               <FormLabel>Price</FormLabel>
               <InputGroup>
                 <InputLeftAddon children={<FaMoneyCheck />} />
-                <Input required type={"number"} min={0} />
+                <Input
+                  {...register("price", { required: true })}
+                  required
+                  type={"number"}
+                  min={0}
+                />
               </InputGroup>
             </FormControl>
             <FormControl>
               <FormLabel>Room</FormLabel>
               <InputGroup>
                 <InputLeftAddon children={<FaBed />} />
-                <Input type={"number"} min={0} />
+                <Input
+                  {...register("rooms", { required: true })}
+                  type={"number"}
+                  min={0}
+                />
               </InputGroup>
             </FormControl>
             <FormControl>
               <FormLabel>Toilets</FormLabel>
               <InputGroup>
                 <InputLeftAddon children={<FaToilet />} />
-                <Input type={"number"} min={0} />
+                <Input
+                  {...register("toilets", { required: true })}
+                  type={"number"}
+                  min={0}
+                />
               </InputGroup>
             </FormControl>
             <FormControl>
               <FormLabel>Descriptions</FormLabel>
-              <Textarea />
+              <Textarea {...register("description", { required: true })} />
             </FormControl>
             <FormControl>
-              <Checkbox>Pet friendly?</Checkbox>
+              <Checkbox {...register("pet_friendly", { required: true })}>
+                Pet friendly?
+              </Checkbox>
             </FormControl>
             <FormControl>
               <FormLabel>Room Type</FormLabel>
-              <Select placeholder="choose a kind">
+              <Select
+                {...register("kind", { required: true })}
+                placeholder="choose a kind"
+              >
                 <option value="entire_place">Entire Place</option>
                 <option value="private_room">Private Room</option>
                 <option value="shared_room">Shared Room</option>
@@ -99,7 +158,10 @@ export default function UploadRoom() {
             </FormControl>
             <FormControl>
               <FormLabel>Category</FormLabel>
-              <Select placeholder="Choose a kind">
+              <Select
+                {...register("category", { required: true })}
+                placeholder="Choose a kind"
+              >
                 {categories?.map((category) => (
                   <option key={category.pk} value={category.pk}>
                     {category.name}
@@ -115,7 +177,12 @@ export default function UploadRoom() {
               <Grid templateColumns={"1fr 1fr"} gap={5}>
                 {amenities?.map((amenity) => (
                   <Box key={amenity.pk}>
-                    <Checkbox>{amenity.name}</Checkbox>
+                    <Checkbox
+                      value={amenity.pk}
+                      {...register("amenities", { required: true })}
+                    >
+                      {amenity.name}
+                    </Checkbox>
                     <FormHelperText>{amenity.description}</FormHelperText>
                   </Box>
                 ))}
