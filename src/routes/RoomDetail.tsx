@@ -18,7 +18,7 @@ import { getRoom, getRoomReviews } from "../api";
 import { IRoomDetail, IReview } from "../types";
 import { Calendar } from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function RoomDetail() {
   const { roomPk } = useParams();
@@ -26,8 +26,15 @@ export default function RoomDetail() {
   const { data: reviewsData, isLoading: isReviewsLoading } = useQuery<
     IReview[]
   >([`rooms`, roomPk, `reviews`], getRoomReviews);
-  const [dates, setDates] = useState<Date>();
-  console.log(dates);
+  const [dates, setDates] = useState<Date[]>();
+  useEffect(() => {
+    if (dates) {
+      const [firstDate, secondDate] = dates;
+      const [checkIn] = firstDate.toISOString().split("T");
+      const [checkOut] = secondDate.toISOString().split("T");
+      console.log(checkIn, checkOut);
+    }
+  }, [dates]);
   return (
     <Box mt={40} px={{ base: 10, lg: 40 }}>
       <Skeleton height={"43px"} width="50%" isLoaded={!isLoading}>
