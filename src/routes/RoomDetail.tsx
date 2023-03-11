@@ -30,9 +30,14 @@ export default function RoomDetail() {
   useEffect(() => {
     if (dates) {
       const [firstDate, secondDate] = dates;
-      const [checkIn] = firstDate.toISOString().split("T");
-      const [checkOut] = secondDate.toISOString().split("T");
-      console.log(checkIn, checkOut);
+      const checkIn = firstDate
+        .toLocaleDateString()
+        .replaceAll(". ", "-")
+        .replace(".", "");
+      const checkOut = secondDate
+        .toLocaleDateString()
+        .replaceAll(". ", "-")
+        .replace(".", "");
     }
   }, [dates]);
   return (
@@ -140,7 +145,7 @@ export default function RoomDetail() {
             minDetail="month"
             minDate={new Date()}
             maxDate={new Date(new Date().setMonth(new Date().getMonth() + 3))}
-            selectRange={true}
+            selectRange
           />
         </Box>
       </Grid>
