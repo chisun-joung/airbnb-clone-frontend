@@ -10,15 +10,18 @@ import {
   Text,
   Avatar,
   Container,
+  Button,
 } from "@chakra-ui/react";
 import { FaStar } from "react-icons/fa";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import { getRoom, getRoomReviews } from "../api";
+import { checkBooking, getRoom, getRoomReviews } from "../api";
 import { IRoomDetail, IReview } from "../types";
 import { Calendar } from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { useEffect, useState } from "react";
+import "../calendar.css";
+import { useState } from "react";
+import { Helmet } from "react-helmet";
 
 export default function RoomDetail() {
   const { roomPk } = useParams();
@@ -27,21 +30,19 @@ export default function RoomDetail() {
     IReview[]
   >([`rooms`, roomPk, `reviews`], getRoomReviews);
   const [dates, setDates] = useState<Date[]>();
-  useEffect(() => {
-    if (dates) {
-      const [firstDate, secondDate] = dates;
-      const checkIn = firstDate
-        .toLocaleDateString()
-        .replaceAll(". ", "-")
-        .replace(".", "");
-      const checkOut = secondDate
-        .toLocaleDateString()
-        .replaceAll(". ", "-")
-        .replace(".", "");
+  const { data: checkBookingData, isLoading: isCheckingBooking } = useQuery(
+    ["check", roomPk, dates],
+    checkBooking,
+    {
+      cacheTime: 0,
+      enabled: dates !== undefined,
     }
-  }, [dates]);
+  );
   return (
     <Box mt={40} px={{ base: 10, lg: 40 }}>
+      <Helmet>
+        <title>{data ? data.name : "Loading..."}</title>
+      </Helmet>
       <Skeleton height={"43px"} width="50%" isLoaded={!isLoading}>
         <Heading>{data?.name}</Heading>
       </Skeleton>
@@ -139,6 +140,7 @@ export default function RoomDetail() {
         </Box>
         <Box pt={10}>
           <Calendar
+            goToRangeStartOnSelect
             onChange={setDates}
             prev2Label={null}
             next2Label={null}
@@ -147,6 +149,18 @@ export default function RoomDetail() {
             maxDate={new Date(new Date().setMonth(new Date().getMonth() + 3))}
             selectRange
           />
+          <Button
+            disabled={!checkBookingData?.ok}
+            isLoading={isCheckingBooking && dates !== undefined}
+            my={5}
+            w="100%"
+            colorScheme={"red"}
+          >
+            Make booking
+          </Button>
+          {!isCheckingBooking && !checkBookingData?.ok ? (
+            <Text color="red.500">Can't book on those dates, sorry.</Text>
+          ) : null}
         </Box>
       </Grid>
     </Box>
