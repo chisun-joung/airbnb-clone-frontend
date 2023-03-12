@@ -7,7 +7,7 @@ export default function SocialLogin() {
     redirect_uri:
       process.env.NODE_ENV === "development"
         ? "http://127.0.0.1:3000/social/kakao"
-        : "https://airbnb-frontend-ncrf.onrender.com/social/kakao",
+        : "https://csjoung.xyz/social/kakao",
     response_type: "code",
   };
   const params = new URLSearchParams(kakaoParms).toString();
