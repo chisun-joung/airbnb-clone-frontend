@@ -146,9 +146,7 @@ export default function UploadRoom() {
               <Textarea {...register("description", { required: true })} />
             </FormControl>
             <FormControl>
-              <Checkbox {...register("pet_friendly", { required: true })}>
-                Pet friendly?
-              </Checkbox>
+              <Checkbox {...register("pet_friendly")}>Pet friendly?</Checkbox>
             </FormControl>
             <FormControl>
               <FormLabel>Room Type</FormLabel>
